@@ -1,89 +1,100 @@
 <script lang="ts">
 
-interface Option {
-  value?: number;
-  name?: string;
-  class?: string;
+import { MAX_WEIGHT } from '../config/constants';
+
+const INITIAL_SLOT = {
+  value: 0,
+  name: "-",
+  weight: 5,
+  class: ""
 }
-let options: Option[];
-let fields: Option[];
+
+interface IOption {
+  value: number,
+  name: string,
+  weight: number
+  class?: string,
+}
 
 export default {
 
   data() {
     return {
       options: [
+        INITIAL_SLOT,
         {
-          value: 1,
-          name: "normal",
+          value: 0,
+          name: "\\",
+          weight: 5,
           class: ""
         },
         {
-          value: 2,
+          value: 0,
+          name: "/",
+          weight: 5,
+          class: ""
+        },
+        {
+          value: 50,
           name: "nice",
-          class: ""
+          weight: 5,
+          class: "win"
         },
         {
-          value: 3,
-          name: "bad",
-          class: ""
+          value: -100,
+          name: "X",
+          weight: 4,
+          class: "lose"
         },
         {
-          value: 4,
+          value: 10000,
           name: "lucky 7",
-          class: "lucky"
-        }],
+          class: "lucky",
+          weight: 3
+        }] as IOption[],
 
       fields: [
-        {
-          value: 1,
-          name: "normal",
-          class: ""
-        },
-        {
-          value: 1,
-          name: "normal",
-          class: ""
-        },
-        {
-          value: 1,
-          name: "normal",
-          class: ""
-        }]
+        INITIAL_SLOT,
+        INITIAL_SLOT,
+        INITIAL_SLOT
+      ] as IOption[],
+      waiting: false as boolean
     }
   },
 
   methods: {
     resetSlots() {
       this.fields = [
-        {
-          value: 1,
-          name: "normal",
-          class: ""
-        },
-        {
-          value: 1,
-          name: "normal",
-          class: ""
-        },
-        {
-          value: 1,
-          name: "normal",
-          class: ""
-        }]
+        INITIAL_SLOT,
+        INITIAL_SLOT,
+        INITIAL_SLOT
+      ]
     },
-    
+
     roll() {
 
       this.resetSlots();
-      
-      this.fields = this.fields.map(() => {
-        const RNG = Math.floor(Math.random() * this.options.length);
 
-        return (
-          this.options[RNG]
-        )
-      })
+      var audio = new Audio('slots.mp3')
+      audio.play()
+
+      setTimeout(() => {
+        const RNG:number[] = [];
+        const weightPick:number[] = [];
+
+        this.fields.map(async (field, index) => {
+          weightPick[index] = Math.ceil(Math.random() * MAX_WEIGHT);
+
+          RNG[index] = Math.floor(Math.random() * this.options.filter((option: IOption) => option.weight <= weightPick[index]).length);
+
+          setTimeout(() => {
+            console.log(RNG[index]);
+            return (
+              this.fields[index] = this.options[RNG[index]]
+              )
+            }, 400 * index)
+        })
+      }, 2840)
     }
   },
 
@@ -96,12 +107,12 @@ export default {
   <div class="main">
     <div class="slots">
       <template v-for="field in fields">
-        <div class="slotField" :class="field.class"><span class="slotName">{{field.name}}</span></div>
+        <div class="slotField" :class="field.class"><span class="slotName">{{ field.name }}</span></div>
       </template>
     </div>
     <br />
 
-    <div class="clickDiv"><button class="click" @click="roll()">Play</button></div>
+    <div class="clickDiv"><button :disabled=waiting class="click" @click="roll()">Play</button></div>
   </div>
 </template>
 
@@ -138,14 +149,13 @@ export default {
   display: flex;
   min-width: 100%;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
 .slotField {
-  margin: 20px;
-  width: 30%;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   border: 10px solid gold;
   box-shadow: 3px 3px goldenrod;
   background-color: white;
@@ -159,6 +169,14 @@ export default {
 .slotName {
   font-size: 3em;
   font-weight: bolder;
+}
+
+.lose {
+  color: red;
+}
+
+.win {
+  color: greenyellow;
 }
 
 .lucky {
@@ -215,5 +233,6 @@ export default {
   91% {
     color: rgb(255, 0, 127);
   }
+
 }
 </style>
