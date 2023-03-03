@@ -85,10 +85,9 @@ export default {
         this.fields.map(async (field, index) => {
           weightPick[index] = Math.ceil(Math.random() * MAX_WEIGHT);
 
-          RNG[index] = Math.floor(Math.random() * this.options.filter((option: IOption) => option.weight <= weightPick[index]).length);
+          RNG[index] = Math.floor(Math.random() * this.options.filter((option: IOption) => option.weight >= weightPick[index]).length);
 
           setTimeout(() => {
-            console.log(RNG[index]);
             return (
               this.fields[index] = this.options[RNG[index]]
               )
