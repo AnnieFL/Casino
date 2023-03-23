@@ -3,7 +3,7 @@
 import { MAX_WEIGHT } from '../config/constants';
 
 const INITIAL_SLOT = {
-  value: 0,
+  value: 5,
   name: "-",
   weight: 5,
   class: ""
@@ -20,23 +20,24 @@ export default {
 
   data() {
     return {
+      credits: 150 as number,
       options: [
         INITIAL_SLOT,
         {
-          value: 0,
-          name: "\\",
+          value: 3,
+          name: "...",
           weight: 5,
           class: ""
         },
         {
-          value: 0,
-          name: "/",
+          value: 1,
+          name: ":/",
           weight: 5,
           class: ""
         },
         {
           value: 50,
-          name: "nice",
+          name: ":)",
           weight: 5,
           class: "win"
         },
@@ -48,7 +49,7 @@ export default {
         },
         {
           value: 10000,
-          name: "lucky 7",
+          name: "7",
           class: "lucky",
           weight: 3
         }] as IOption[],
@@ -58,7 +59,7 @@ export default {
         INITIAL_SLOT,
         INITIAL_SLOT
       ] as IOption[],
-      waiting: false as boolean
+      disabled: false as boolean
     }
   },
 
@@ -73,7 +74,10 @@ export default {
 
     roll() {
 
+      this.disabled = true;
+
       this.resetSlots();
+      this.credits--;
 
       var audio = new Audio('slots.mp3')
       audio.play()
@@ -94,6 +98,19 @@ export default {
             }, 400 * index)
         })
       }, 2840)
+
+      setTimeout(() => this.checktrio(), 4040);
+    },
+
+    checktrio() {
+      if (this.fields[0].name == this.fields[1].name && this.fields[0].name == this.fields[2].name) {
+        this.credits = this.credits + this.fields[0].value;
+      }
+      if (this.credits === 0) {
+        this.disabled = true;
+      } else {
+        this.disabled = false;
+      }
     }
   },
 
@@ -109,15 +126,25 @@ export default {
         <div class="slotField" :class="field.class"><span class="slotName">{{ field.name }}</span></div>
       </template>
     </div>
+    
     <br />
 
-    <div class="clickDiv"><button :disabled=waiting class="click" @click="roll()">Play</button></div>
+    <div class="clickDiv"><button :disabled=(disabled) class="click" @click="roll()"></button></div>
   </div>
+
+  <span class="creditsSpan">Credits: {{ credits }}</span>
 </template>
 
 <style>
 .main {
   min-width: 75vw;
+}
+
+.creditsSpan {
+  color: white;
+  position: absolute;
+  font-size: 1.5em;
+  bottom: 10px;
 }
 
 .clickDiv {
@@ -132,16 +159,16 @@ export default {
   font-size: 1.5em;
   font-weight: bold;
   cursor: pointer;
-  padding: 15px;
-  background-color: rgb(0, 42, 182);
-  border: none;
-  border-radius: 15px;
+  padding: 25px;
+  background-color: gold;
+  border: 5px solid rgb(194, 165, 0);
+  border-radius: 100px;
   color: white;
   text-align: center
 }
 
 .click:hover {
-  background-color: rgb(45, 77, 180);
+  background-color: rgb(194, 165, 0);
 }
 
 .slots {
@@ -166,7 +193,7 @@ export default {
 }
 
 .slotName {
-  font-size: 3em;
+  font-size: 5em;
   font-weight: bolder;
 }
 
